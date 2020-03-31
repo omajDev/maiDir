@@ -9,41 +9,53 @@ import (
 	"strings"
 )
 
-func sortRecursive(path string, info os.FileInfo) error {
-	if info.IsDir() || filepath.HasPrefix(info.Name(), ".") {
-		return filepath.SkipDir
-	}
-
-	handlDir := func(path, ext string) string {
-		if ext != "" {
-			return filepath.Dir(path) + "/" + ext[1:]
-		}
-		return filepath.Dir(path) + "/others"
-	}
-
+func handlDir(path string) string {
 	ext := strings.ToLower(filepath.Ext(path))
-	newDir := handlDir(path, ext)
-	if _, err := os.Stat(newDir); os.IsNotExist(err) {
-		os.Mkdir(newDir, 0755)
+	if ext != "" {
+		return filepath.Dir(path) + "/" + ext[1:]
 	}
-	newPath := newDir + "/" + info.Name()
-	os.Rename(path, newPath)
-	return nil
+	return filepath.Dir(path) + "/others"
+}
+func createDir(dir string) {
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		os.Mkdir(dir, 0755)
+	}
+}
+func newPath(path string, info os.FileInfo) (string, error) {
+	if info.IsDir() || filepath.HasPrefix(info.Name(), ".") {
+		return "", filepath.SkipDir
+	}
+
+	return handlDir(path) + "/" + info.Name(), nil
 }
 
 func main() {
 
-	dir := flag.String("dir", ".", "Set Directory to be sortted")
+	dir := flag.String("dir", "", "Set Directory to be sortted")
+	//y := flag.Bool("y", false, "")
 	flag.Parse()
+	if *dir == "" {
+		flag.Usage()
+		os.Exit(1)
+	}
 	if _, err := os.Stat(*dir); os.IsNotExist(err) {
 		log.Fatal(err)
 	}
-	files, err := ioutil.ReadDir(".")
+	files, err := ioutil.ReadDir(*dir)
 	if err != nil {
 		log.Fatal(err)
 	}
 	for _, f := range files {
-		sortRecursive(*dir+"/"+f.Name(), f)
+		path := *dir + "/" + f.Name()
+		newPath, err := newPath(path, f)
+		createDir(newPath)
+		if err != nil {
+			log.Println(path, ": ", err)
+			continue
+		}
+		log.Println("moving file", path, " to ", newPath)
+		os.Rename(path, newPath)
+
 	}
 
 }
