@@ -5,38 +5,21 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"path/filepath"
-	"strings"
+
+	maidir "maidir"
 )
+var(
+	dir := flag.String("dir", "", "Set Directory to be sortted")
 
-func handlDir(path string) string {
-	ext := strings.ToLower(filepath.Ext(path))
-	if ext != "" {
-		return filepath.Dir(path) + "/" + ext[1:]
-	}
-	return filepath.Dir(path) + "/others"
-}
-func createDir(dir string) {
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		os.Mkdir(dir, 0755)
-	}
-}
-func newPath(path string, info os.FileInfo) (string, error) {
-	if info.IsDir() || filepath.HasPrefix(info.Name(), ".") {
-		return "", filepath.SkipDir
-	}
-
-	return handlDir(path) + "/" + info.Name(), nil
-}
+)
 
 func main() {
 
-	dir := flag.String("dir", "", "Set Directory to be sortted")
 	//y := flag.Bool("y", false, "")
 	flag.Parse()
 	if *dir == "" {
 		flag.Usage()
-		os.Exit(1)
+		os.Exit(0)
 	}
 	if _, err := os.Stat(*dir); os.IsNotExist(err) {
 		log.Fatal(err)
@@ -45,10 +28,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	for _, f := range files {
 		path := *dir + "/" + f.Name()
-		newPath, err := newPath(path, f)
-		createDir(newPath)
+		newPath, err := maidir.NewPath(path, f)
+		maidir.CreateDir(newPath)
 		if err != nil {
 			log.Println(path, ": ", err)
 			continue
