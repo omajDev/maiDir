@@ -1,4 +1,4 @@
-package main
+package maidir
 
 import (
 	"os"
@@ -23,5 +23,5 @@ func NewPath(path string, info os.FileInfo) (string, error) {
 		return "", filepath.SkipDir
 	}
 
-	return HandlDir(path) + "/" + info.Name(), nil
+	return HandlDir(path), nil
 }
