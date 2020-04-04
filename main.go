@@ -48,7 +48,6 @@ func main() {
 		if prompt(fmt.Sprint("are you sure you want to move ", path, " to ", newPath, " (y/n)? ")) == "y" {
 			fmt.Println("moving file", path, " to ", newPath)
 			os.Rename(path, newPath)
-			continue
 		}
 	}
 

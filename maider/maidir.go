@@ -22,6 +22,5 @@ func NewPath(path string, info os.FileInfo) (string, error) {
 	if info.IsDir() || filepath.HasPrefix(info.Name(), ".") {
 		return "", filepath.SkipDir
 	}
-
 	return HandlDir(path), nil
 }
