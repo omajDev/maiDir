@@ -5,17 +5,13 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-
-	maidir "maidir"
-)
-var(
-	dir := flag.String("dir", "", "Set Directory to be sortted")
-
 )
 
 func main() {
-
-	//y := flag.Bool("y", false, "")
+	var (
+		dir = flag.String("dir", "", "Set Directory to be sorted")
+		y   = flag.Bool("y", false, "")
+	)
 	flag.Parse()
 	if *dir == "" {
 		flag.Usage()
@@ -37,8 +33,11 @@ func main() {
 			log.Println(path, ": ", err)
 			continue
 		}
-		log.Println("moving file", path, " to ", newPath)
-		os.Rename(path, newPath)
+		if *y {
+			log.Println("moving file", path, " to ", newPath)
+			os.Rename(path, newPath)
+			continue
+		}
 
 	}
 

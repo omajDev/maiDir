@@ -1,4 +1,4 @@
-package maidir
+package main
 
 import (
 	"os"
